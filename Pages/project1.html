@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Markdown in HTML</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <link rel="stylesheet" href="pages.css">
+</head>
+<body>
+  <div class="project-details">
+    <div class="back-btn">
+      <a href="../index.html"><- Back</a>
+    </div>
+    <div class="header-div">
+        <div class="img-div">
+            <img src="/Assets/Northwind-Traders.jpg" class="project-image" alt="Project Image">
+        </div>
+        <div class="project-info">
+            <h1 class="project-title"> Northwind Traders EDA</h1>
+            <p>Exploratory data analysis of sales & order data for Northwind Traders, a fictitious gourmet food supplier.</p>
+            <div class="github-div">
+              <a href="https://github.com/PatrickNAquino/NorthWind-Traders-EDA" target="_blank"><i class="fab fa-github" target="_blank"></i> View source data</a>
+            </div>
+        </div> 
+    </div>
+    
+    
+    <div class="project-content">
+      <h2 id="overview">OVERVIEW</h2>
+      <p>The Northwind database contains the sales data for a fictitious company called “Northwind Traders” which imports and exports specialty foods from around the world.
+      The dataset includes sample data for:</p>
+      <ul>
+      <li><strong>Suppliers:</strong> Suppliers and vendors of Northwind</li>
+      <li><strong>Customers:</strong> Customers who buy products from Northwind</li>
+      <li><strong>Employees:</strong> Employee details of Northwind traders</li>
+      <li><strong>Products:</strong> Product information</li>
+      <li><strong>Shippers:</strong> The details of the shippers who ship the products from the traders to the end-customers</li>
+      <li><strong>Orders and Order_Details:</strong> Sales Order transactions taking place between the customers &amp; the company</li>
+      </ul>
+      <p>Link to the dataset: <a href="https://app.mavenanalytics.io/datasets?search=northwind" target="_blank">NorthWind Traders Dataset</a></p>
+      <p>Below, I&#39;m doing an exploratory data analysis using SQL in order to understand the data and how the company works, &#39;whats their main product&#39;, &#39;from where the customers are?&#39;, &#39;how is the revenue trending over time ?&#39;</p>
+      <h2 id="exploring-products">EXPLORING PRODUCTS</h2>
+      <ul>
+      <li>The company works with 77 products distributed in 8 categories;</li>
+      <li>&#39;Confections&#39; category has the highest number of products with 13 items</li>
+      <li>Dairy products is the top selling category with &#39;Raclette Courdavault&#39; being the most ordered product with 54 orders representing 6.5% of total orders;</li>
+      <li>&#39;Beverages&#39; category has 21% of market share and the top revenue product &#39;Côte de Blaye&#39; with 11.% ($ 149.1K);</li>
+      </ul>
+      <pre><code class="lang-sql"><span class="hljs-comment">-- How many products we have ? </span>
+      <span class="hljs-keyword">SELECT</span> <span class="hljs-keyword">COUNT</span>(*) <span class="hljs-keyword">FROM</span> products;
+
+      <span class="hljs-comment">-- How many categories ? </span>
+      <span class="hljs-keyword">SELECT</span> <span class="hljs-keyword">COUNT</span>(*) <span class="hljs-keyword">FROM</span> categories;
+
+      <span class="hljs-comment">-- How many products in each category ? </span>
+      <span class="hljs-keyword">SELECT</span> 
+        categoryName,
+        <span class="hljs-keyword">COUNT</span>(<span class="hljs-keyword">DISTINCT</span> productID) <span class="hljs-keyword">AS</span> product_qty
+      <span class="hljs-keyword">FROM</span> categories
+      <span class="hljs-keyword">LEFT</span> <span class="hljs-keyword">JOIN</span> products <span class="hljs-keyword">USING</span>(categoryID)
+      <span class="hljs-keyword">GROUP</span> <span class="hljs-keyword">BY</span> <span class="hljs-number">1</span> <span class="hljs-keyword">WITH</span> <span class="hljs-keyword">ROLLUP</span>
+      <span class="hljs-keyword">ORDER</span> <span class="hljs-keyword">BY</span> <span class="hljs-number">2</span> 
+      ;
+
+      <span class="hljs-comment">-- Top selling Product ?</span>
+      <span class="hljs-keyword">SELECT</span>
+        productName,
+        categoryName,
+        <span class="hljs-keyword">COUNT</span>(<span class="hljs-keyword">DISTINCT</span> orderID) <span class="hljs-keyword">AS</span> qty_orders,
+        <span class="hljs-keyword">CONCAT</span>(<span class="hljs-keyword">ROUND</span>((<span class="hljs-keyword">COUNT</span>(<span class="hljs-keyword">DISTINCT</span> orderID)/(<span class="hljs-keyword">SELECT</span> <span class="hljs-keyword">COUNT</span>(<span class="hljs-keyword">DISTINCT</span> orderID) <span class="hljs-keyword">FROM</span> orders))*<span class="hljs-number">100</span>,<span class="hljs-number">1</span>),<span class="hljs-string">' %'</span>) <span class="hljs-keyword">AS</span> pct_orders
+      <span class="hljs-keyword">FROM</span> order_details
+      <span class="hljs-keyword">LEFT</span> <span class="hljs-keyword">JOIN</span> products <span class="hljs-keyword">USING</span>(productID)
+      <span class="hljs-keyword">LEFT</span> <span class="hljs-keyword">JOIN</span> categories <span class="hljs-keyword">USING</span>(categoryID)
+      <span class="hljs-keyword">GROUP</span> <span class="hljs-keyword">BY</span> <span class="hljs-number">1</span>,<span class="hljs-number">2</span>
+      <span class="hljs-keyword">ORDER</span> <span class="hljs-keyword">BY</span> <span class="hljs-number">3</span> <span class="hljs-keyword">DESC</span>
+      ;
+
+      <span class="hljs-comment">-- Total revenue by product </span>
+      <span class="hljs-keyword">SELECT</span>
+        productName,
+        categoryName,
+        <span class="hljs-keyword">ROUND</span>(<span class="hljs-keyword">SUM</span>(order_details.unitPrice * order_details.quantity),<span class="hljs-number">2</span>) <span class="hljs-keyword">AS</span> revenue,
+        <span class="hljs-keyword">CONCAT</span>(<span class="hljs-keyword">ROUND</span>((<span class="hljs-keyword">SUM</span>(order_details.unitPrice * order_details.quantity)/(<span class="hljs-keyword">SELECT</span> <span class="hljs-keyword">SUM</span>(order_details.unitPrice * order_details.quantity) <span class="hljs-keyword">FROM</span> order_details))*<span class="hljs-number">100</span>,<span class="hljs-number">1</span>), <span class="hljs-string">' %'</span>) <span class="hljs-keyword">AS</span> pct_revenue
+      <span class="hljs-keyword">FROM</span> order_details
+      <span class="hljs-keyword">LEFT</span> <span class="hljs-keyword">JOIN</span> products <span class="hljs-keyword">USING</span>(productID)
+      <span class="hljs-keyword">LEFT</span> <span class="hljs-keyword">JOIN</span> categories <span class="hljs-keyword">USING</span>(categoryID)
+      <span class="hljs-keyword">GROUP</span> <span class="hljs-keyword">BY</span> <span class="hljs-number">1</span>,<span class="hljs-number">2</span>
+      <span class="hljs-keyword">ORDER</span> <span class="hljs-keyword">BY</span> <span class="hljs-number">3</span> <span class="hljs-keyword">DESC</span>
+      ;
+
+      <span class="hljs-comment">-- Total revenue by category</span>
+      <span class="hljs-keyword">SELECT</span>
+        categoryName,
+        <span class="hljs-keyword">ROUND</span>(<span class="hljs-keyword">SUM</span>(order_details.unitPrice * order_details.quantity),<span class="hljs-number">2</span>) <span class="hljs-keyword">AS</span> revenue,
+        <span class="hljs-keyword">CONCAT</span>(<span class="hljs-keyword">ROUND</span>((<span class="hljs-keyword">SUM</span>(order_details.unitPrice * order_details.quantity)/(<span class="hljs-keyword">SELECT</span> <span class="hljs-keyword">SUM</span>(order_details.unitPrice * order_details.quantity) <span class="hljs-keyword">FROM</span> order_details))*<span class="hljs-number">100</span>,<span class="hljs-number">1</span>), <span class="hljs-string">' %'</span>) <span class="hljs-keyword">AS</span> pct_revenue
+      <span class="hljs-keyword">FROM</span> order_details
+      <span class="hljs-keyword">LEFT</span> <span class="hljs-keyword">JOIN</span> products <span class="hljs-keyword">USING</span>(productID)
+      <span class="hljs-keyword">LEFT</span> <span class="hljs-keyword">JOIN</span> categories <span class="hljs-keyword">USING</span>(categoryID)
+      <span class="hljs-keyword">GROUP</span> <span class="hljs-keyword">BY</span> <span class="hljs-number">1</span>
+      <span class="hljs-keyword">ORDER</span> <span class="hljs-keyword">BY</span> <span class="hljs-number">2</span> <span class="hljs-keyword">DESC</span>
+      ;
+      </code></pre>
+      <h2 id="exploring-employees">EXPLORING EMPLOYEES</h2>
+      <ul>
+      <li>The top 3 employees in sales are Margaret Peacock (156 un), Janet Leverling (127 un) and Nancy Davolio (123 un)</li>
+      <li>Margaret Peacock is the top employee with 18.8% of sales with 156 orders related; her best-sellers products are Gnocchi di nonna Alice and Pâté chinois;  </li>
+      <li>She is also the employee with the highest total revenue, representing 18.5% of the market share;</li>
+      </ul>
+      <pre><code class="lang-sql"><span class="hljs-comment">-- order per employee</span>
+      <span class="hljs-keyword">SELECT</span>
+        employeeID,
+        employeeName,
+        <span class="hljs-keyword">COUNT</span>(<span class="hljs-keyword">DISTINCT</span> orderID) <span class="hljs-keyword">AS</span> orders,
+        <span class="hljs-keyword">CONCAT</span>(<span class="hljs-keyword">ROUND</span>((<span class="hljs-keyword">COUNT</span>(<span class="hljs-keyword">DISTINCT</span> orderID)/(<span class="hljs-keyword">SELECT</span> <span class="hljs-keyword">COUNT</span>(<span class="hljs-keyword">DISTINCT</span> orderID) <span class="hljs-keyword">FROM</span> orders))*<span class="hljs-number">100</span>,<span class="hljs-number">1</span>),<span class="hljs-string">' %'</span>) <span class="hljs-keyword">AS</span> pct_orders
+      <span class="hljs-keyword">FROM</span> orders
+      <span class="hljs-keyword">LEFT</span> <span class="hljs-keyword">JOIN</span> employees <span class="hljs-keyword">USING</span>(employeeID)
+      <span class="hljs-keyword">GROUP</span> <span class="hljs-keyword">BY</span> <span class="hljs-number">1</span>,<span class="hljs-number">2</span>
+      <span class="hljs-keyword">ORDER</span> <span class="hljs-keyword">by</span> <span class="hljs-number">3</span> <span class="hljs-keyword">DESC</span>
+      ;
+
+      <span class="hljs-comment">-- top selling product per employee</span>
+      <span class="hljs-keyword">SELECT</span>
+        employeeID,
+        employeeName,    
+        productName,
+        <span class="hljs-keyword">COUNT</span>(<span class="hljs-keyword">DISTINCT</span> orderID) <span class="hljs-keyword">AS</span> product_qtd,
+        <span class="hljs-keyword">CONCAT</span>(<span class="hljs-keyword">ROUND</span>((<span class="hljs-keyword">COUNT</span>(<span class="hljs-keyword">DISTINCT</span> orderID)/(<span class="hljs-keyword">SELECT</span> <span class="hljs-keyword">COUNT</span>(<span class="hljs-keyword">DISTINCT</span> orderID) <span class="hljs-keyword">FROM</span> orders))*<span class="hljs-number">100</span>,<span class="hljs-number">1</span>),<span class="hljs-string">' %'</span>) <span class="hljs-keyword">AS</span> pct_orders
+      <span class="hljs-keyword">FROM</span> order_details
+      <span class="hljs-keyword">LEFT</span> <span class="hljs-keyword">JOIN</span> products <span class="hljs-keyword">USING</span>(productID)
+      <span class="hljs-keyword">LEFT</span> <span class="hljs-keyword">JOIN</span> orders <span class="hljs-keyword">USING</span>(orderID)
+      <span class="hljs-keyword">LEFT</span> <span class="hljs-keyword">JOIN</span> employees <span class="hljs-keyword">USING</span>(employeeID)
+      <span class="hljs-keyword">GROUP</span> <span class="hljs-keyword">BY</span> <span class="hljs-number">1</span>,<span class="hljs-number">2</span>,<span class="hljs-number">3</span>
+      <span class="hljs-keyword">ORDER</span> <span class="hljs-keyword">BY</span> <span class="hljs-number">4</span> <span class="hljs-keyword">DESC</span>
+      ;
+
+      <span class="hljs-comment">-- revenue per employee</span>
+      <span class="hljs-keyword">SELECT</span>
+        employeeID,
+        employeeName,
+        <span class="hljs-keyword">ROUND</span>(<span class="hljs-keyword">SUM</span>(order_details.unitPrice * order_details.quantity),<span class="hljs-number">2</span>) <span class="hljs-keyword">AS</span> revenue,
+        <span class="hljs-keyword">CONCAT</span>(<span class="hljs-keyword">ROUND</span>((<span class="hljs-keyword">SUM</span>(order_details.unitPrice * order_details.quantity)/(<span class="hljs-keyword">SELECT</span> <span class="hljs-keyword">SUM</span>(order_details.unitPrice * order_details.quantity) <span class="hljs-keyword">FROM</span> order_details))*<span class="hljs-number">100</span>,<span class="hljs-number">1</span>), <span class="hljs-string">' %'</span>) <span class="hljs-keyword">AS</span> pct_revenue
+      <span class="hljs-keyword">FROM</span> orders
+      <span class="hljs-keyword">LEFT</span> <span class="hljs-keyword">JOIN</span> employees <span class="hljs-keyword">USING</span>(employeeID)
+      <span class="hljs-keyword">LEFT</span> <span class="hljs-keyword">JOIN</span> order_details <span class="hljs-keyword">USING</span>(orderID)
+      <span class="hljs-keyword">GROUP</span> <span class="hljs-keyword">BY</span> <span class="hljs-number">1</span>,<span class="hljs-number">2</span>
+      <span class="hljs-keyword">ORDER</span> <span class="hljs-keyword">by</span> <span class="hljs-number">3</span> <span class="hljs-keyword">DESC</span>
+      ;
+      </code></pre>
+      <h2 id="exploring-countries">EXPLORING COUNTRIES</h2>
+      <ul>
+      <li>USA, Germany and Austria are the most important countries with 47.9% of revenue and 39.4% of orders;</li>
+      <li>With $ 263.5K of revenue, USA is selling mostly &#39;Camembert Pierrot&#39; and &#39;Tarte au sucre&#39;;</li>
+      </ul>
+      <pre><code class="lang-sql"><span class="hljs-comment">-- revenue by country</span>
+      <span class="hljs-keyword">SELECT</span> 
+        customers.country,
+        <span class="hljs-keyword">ROUND</span>(<span class="hljs-keyword">SUM</span>(order_details.unitPrice * order_details.quantity),<span class="hljs-number">2</span>) <span class="hljs-keyword">AS</span> revenue,
+        <span class="hljs-keyword">CONCAT</span>(<span class="hljs-keyword">ROUND</span>((<span class="hljs-keyword">SUM</span>(order_details.unitPrice * order_details.quantity)/(<span class="hljs-keyword">SELECT</span> <span class="hljs-keyword">SUM</span>(order_details.unitPrice * order_details.quantity) <span class="hljs-keyword">FROM</span> order_details))*<span class="hljs-number">100</span>,<span class="hljs-number">1</span>), <span class="hljs-string">' %'</span>) <span class="hljs-keyword">AS</span> pct_revenue
+      <span class="hljs-keyword">FROM</span> order_details
+      <span class="hljs-keyword">LEFT</span> <span class="hljs-keyword">JOIN</span> products <span class="hljs-keyword">USING</span>(productID)
+      <span class="hljs-keyword">LEFT</span> <span class="hljs-keyword">JOIN</span> orders <span class="hljs-keyword">USING</span>(orderID)
+      <span class="hljs-keyword">LEFT</span> <span class="hljs-keyword">JOIN</span> customers <span class="hljs-keyword">USING</span>(customerID)
+      <span class="hljs-keyword">GROUP</span> <span class="hljs-keyword">BY</span> <span class="hljs-number">1</span>
+      <span class="hljs-keyword">ORDER</span> <span class="hljs-keyword">BY</span> <span class="hljs-number">2</span> <span class="hljs-keyword">DESC</span>
+      ;
+
+      <span class="hljs-comment">-- orders by country</span>
+      <span class="hljs-keyword">SELECT</span> 
+        customers.country,
+        <span class="hljs-keyword">COUNT</span>(<span class="hljs-keyword">DISTINCT</span> orderID) <span class="hljs-keyword">AS</span> orders,
+        <span class="hljs-keyword">CONCAT</span>(<span class="hljs-keyword">ROUND</span>((<span class="hljs-keyword">COUNT</span>(<span class="hljs-keyword">DISTINCT</span> orderID)/(<span class="hljs-keyword">SELECT</span> <span class="hljs-keyword">COUNT</span>(<span class="hljs-keyword">DISTINCT</span> orderID) <span class="hljs-keyword">FROM</span> orders))*<span class="hljs-number">100</span>,<span class="hljs-number">1</span>),<span class="hljs-string">' %'</span>) <span class="hljs-keyword">AS</span> pct_orders
+      <span class="hljs-keyword">FROM</span> order_details
+      <span class="hljs-keyword">LEFT</span> <span class="hljs-keyword">JOIN</span> orders <span class="hljs-keyword">USING</span>(orderID)
+      <span class="hljs-keyword">LEFT</span> <span class="hljs-keyword">JOIN</span> customers <span class="hljs-keyword">USING</span>(customerID)
+      <span class="hljs-keyword">GROUP</span> <span class="hljs-keyword">BY</span> <span class="hljs-number">1</span> <span class="hljs-keyword">WITH</span> <span class="hljs-keyword">ROLLUP</span>
+      <span class="hljs-keyword">ORDER</span> <span class="hljs-keyword">BY</span> <span class="hljs-number">2</span> <span class="hljs-keyword">DESC</span>
+      ;
+
+      <span class="hljs-comment">-- top selling product per country</span>
+      <span class="hljs-keyword">SELECT</span>
+        country,
+        productName,
+        <span class="hljs-keyword">COUNT</span>(<span class="hljs-keyword">DISTINCT</span> orderID) <span class="hljs-keyword">AS</span> product_qtd,
+        <span class="hljs-keyword">CONCAT</span>(<span class="hljs-keyword">ROUND</span>((<span class="hljs-keyword">COUNT</span>(<span class="hljs-keyword">DISTINCT</span> orderID)/(<span class="hljs-keyword">SELECT</span> <span class="hljs-keyword">COUNT</span>(<span class="hljs-keyword">DISTINCT</span> orderID) <span class="hljs-keyword">FROM</span> orders))*<span class="hljs-number">100</span>,<span class="hljs-number">1</span>),<span class="hljs-string">' %'</span>) <span class="hljs-keyword">AS</span> pct_orders
+      <span class="hljs-keyword">FROM</span> order_details
+      <span class="hljs-keyword">LEFT</span> <span class="hljs-keyword">JOIN</span> products <span class="hljs-keyword">USING</span>(productID)
+      <span class="hljs-keyword">LEFT</span> <span class="hljs-keyword">JOIN</span> orders <span class="hljs-keyword">USING</span>(orderID)
+      <span class="hljs-keyword">LEFT</span> <span class="hljs-keyword">JOIN</span> employees <span class="hljs-keyword">USING</span>(employeeID)
+      <span class="hljs-keyword">GROUP</span> <span class="hljs-keyword">BY</span> <span class="hljs-number">1</span>,<span class="hljs-number">2</span>
+      <span class="hljs-keyword">ORDER</span> <span class="hljs-keyword">BY</span> <span class="hljs-number">3</span> <span class="hljs-keyword">DESC</span>
+      ;
+      </code></pre>
+      <h2 id="exploring-customers">EXPLORING CUSTOMERS</h2>
+      <ul>
+      <li>From the total 91 customers USA, Germany and France have combined 38.47%;</li>
+      <li>QUICK-Stop from Germany is the top customer with $ 117K in revenue;</li>
+      </ul>
+      <pre><code class="lang-sql">-- total customers
+      <span class="hljs-keyword">SELECT</span>
+      <span class="hljs-keyword">DISTINCT</span> COUNT<span class="hljs-comment">(*)
+      FROM customers;
+
+      -- customers by country
+      SELECT
+        country,
+        COUNT(*)</span> <span class="hljs-keyword">AS</span> customers,
+        <span class="hljs-keyword">CONCAT</span>(ROUND((COUNT<span class="hljs-comment">(*)/(SELECT COUNT(*)</span> <span class="hljs-keyword">FROM</span> customers))*<span class="hljs-number">100</span>,<span class="hljs-number">2</span>), <span class="hljs-string">' %'</span>) <span class="hljs-keyword">AS</span> pct_customers
+      <span class="hljs-keyword">FROM</span> customers
+      <span class="hljs-keyword">GROUP</span> <span class="hljs-keyword">BY</span> <span class="hljs-number">1</span>
+      <span class="hljs-keyword">ORDER</span> <span class="hljs-keyword">BY</span> <span class="hljs-number">2</span> <span class="hljs-keyword">DESC</span>
+      ;
+
+       -- revenue <span class="hljs-keyword">by</span> customer
+      <span class="hljs-keyword">SELECT</span> 
+        customers.companyName,
+        customers.country,
+        ROUND(SUM(order_details.unitPrice * order_details.quantity),<span class="hljs-number">2</span>) <span class="hljs-keyword">AS</span> revenue
+      <span class="hljs-keyword">FROM</span> order_details
+      LEFT <span class="hljs-keyword">JOIN</span> products <span class="hljs-keyword">USING</span>(productID)
+      LEFT <span class="hljs-keyword">JOIN</span> orders <span class="hljs-keyword">USING</span>(orderID)
+      LEFT <span class="hljs-keyword">JOIN</span> customers <span class="hljs-keyword">USING</span>(customerID)
+      <span class="hljs-keyword">GROUP</span> <span class="hljs-keyword">BY</span> <span class="hljs-number">1</span>,<span class="hljs-number">2</span>
+      <span class="hljs-keyword">ORDER</span> <span class="hljs-keyword">BY</span> <span class="hljs-number">3</span> <span class="hljs-keyword">DESC</span>
+      ;
+      </code></pre>
+      <h2 id="exploring-revenue">EXPLORING REVENUE</h2>
+      <ul>
+      <li>The revenue increases over time from dec/2014 to apr/2015</li>
+      <li>&#39;Guarana Fantastica&#39; and &#39;Camembert Pierrot&#39; are the top sellers from this period both with 8 orders representing 1% of total;</li>
+      <li>&#39;Raclette Courdavault&#39; from category &#39;Dairy Products&#39; had the highest revenue in apr/2015 with $ 17.7K (13.2%);</li>
+      <li>in Apr/2015 USA lead the market with 25.4% ($ 34.2K) in revenue with the best-seller product being &#39;Thüringer Rostbratwurst&#39; from category &#39;Meat &amp; Poultry&#39; and $ 7.7K (5.7%) in revenue;</li>
+      </ul>
+      <pre><code class="lang-sql"><span class="hljs-comment">-- how is the revenue over time ?</span>
+      <span class="hljs-keyword">SELECT</span>
+        <span class="hljs-keyword">YEAR</span>(orderDate) <span class="hljs-keyword">AS</span> yr,
+        <span class="hljs-keyword">MONTH</span>(orderDate) <span class="hljs-keyword">AS</span> mo,
+        <span class="hljs-keyword">DATE_FORMAT</span>(orderDate,<span class="hljs-string">'%b/%y'</span>) <span class="hljs-keyword">AS</span> mo_yr,
+        <span class="hljs-keyword">ROUND</span>(<span class="hljs-keyword">SUM</span>(order_details.unitPrice * order_details.quantity),<span class="hljs-number">2</span>) <span class="hljs-keyword">AS</span> revenue
+       <span class="hljs-keyword">FROM</span> orders
+       <span class="hljs-keyword">LEFT</span> <span class="hljs-keyword">JOIN</span> order_details <span class="hljs-keyword">USING</span>(orderID)
+       <span class="hljs-keyword">GROUP</span> <span class="hljs-keyword">BY</span> <span class="hljs-number">3</span>,<span class="hljs-number">1</span>,<span class="hljs-number">2</span>
+       <span class="hljs-keyword">ORDER</span> <span class="hljs-keyword">BY</span> <span class="hljs-number">1</span>,<span class="hljs-number">2</span> <span class="hljs-keyword">ASC</span>
+       ;
+
+      <span class="hljs-comment">-- Top selling Product apr/2015 ?</span>
+      <span class="hljs-keyword">SELECT</span>
+        <span class="hljs-keyword">DATE_FORMAT</span>(orderDate,<span class="hljs-string">'%b/%y'</span>) <span class="hljs-keyword">AS</span> mo_yr,
+        productName,
+        categoryName,
+        <span class="hljs-keyword">COUNT</span>(<span class="hljs-keyword">DISTINCT</span> orderID) <span class="hljs-keyword">AS</span> qty_orders,
+        <span class="hljs-keyword">CONCAT</span>(<span class="hljs-keyword">ROUND</span>((<span class="hljs-keyword">COUNT</span>(<span class="hljs-keyword">DISTINCT</span> orderID)/(<span class="hljs-keyword">SELECT</span> <span class="hljs-keyword">COUNT</span>(<span class="hljs-keyword">DISTINCT</span> orderID) <span class="hljs-keyword">FROM</span> orders))*<span class="hljs-number">100</span>,<span class="hljs-number">1</span>),<span class="hljs-string">' %'</span>) <span class="hljs-keyword">AS</span> pct_orders
+      <span class="hljs-keyword">FROM</span> order_details
+      <span class="hljs-keyword">LEFT</span> <span class="hljs-keyword">JOIN</span> products <span class="hljs-keyword">USING</span>(productID)
+      <span class="hljs-keyword">LEFT</span> <span class="hljs-keyword">JOIN</span> categories <span class="hljs-keyword">USING</span>(categoryID)
+      <span class="hljs-keyword">LEFT</span> <span class="hljs-keyword">JOIN</span> orders <span class="hljs-keyword">USING</span>(orderID)
+      <span class="hljs-keyword">WHERE</span> <span class="hljs-keyword">DATE_FORMAT</span>(orderDate,<span class="hljs-string">'%b/%y'</span>) = <span class="hljs-string">'Apr/15'</span>
+      <span class="hljs-keyword">GROUP</span> <span class="hljs-keyword">BY</span> <span class="hljs-number">1</span>,<span class="hljs-number">2</span>,<span class="hljs-number">3</span>
+      <span class="hljs-keyword">ORDER</span> <span class="hljs-keyword">BY</span> <span class="hljs-number">4</span> <span class="hljs-keyword">DESC</span>
+      ;
+
+      <span class="hljs-comment">-- Total revenue by product in apr/2015</span>
+      <span class="hljs-keyword">SELECT</span>
+        <span class="hljs-keyword">DATE_FORMAT</span>(orderDate,<span class="hljs-string">'%b/%y'</span>) <span class="hljs-keyword">AS</span> mo_yr,
+        productName,
+        categoryName,
+        <span class="hljs-keyword">ROUND</span>(<span class="hljs-keyword">SUM</span>(order_details.unitPrice * order_details.quantity),<span class="hljs-number">2</span>) <span class="hljs-keyword">AS</span> revenue,
+        <span class="hljs-keyword">CONCAT</span>(<span class="hljs-keyword">ROUND</span>((<span class="hljs-keyword">SUM</span>(order_details.unitPrice * order_details.quantity)/(<span class="hljs-keyword">SELECT</span> <span class="hljs-keyword">SUM</span>(order_details.unitPrice * order_details.quantity) <span class="hljs-keyword">FROM</span> order_details <span class="hljs-keyword">LEFT</span> <span class="hljs-keyword">JOIN</span> orders <span class="hljs-keyword">USING</span>(orderID) <span class="hljs-keyword">WHERE</span> <span class="hljs-keyword">DATE_FORMAT</span>(orderDate,<span class="hljs-string">'%b/%y'</span>) = <span class="hljs-string">'Apr/15'</span> ))*<span class="hljs-number">100</span>,<span class="hljs-number">1</span>), <span class="hljs-string">' %'</span>) <span class="hljs-keyword">AS</span> pct_revenue
+      <span class="hljs-keyword">FROM</span> order_details
+      <span class="hljs-keyword">LEFT</span> <span class="hljs-keyword">JOIN</span> products <span class="hljs-keyword">USING</span>(productID)
+      <span class="hljs-keyword">LEFT</span> <span class="hljs-keyword">JOIN</span> categories <span class="hljs-keyword">USING</span>(categoryID)
+      <span class="hljs-keyword">LEFT</span> <span class="hljs-keyword">JOIN</span> orders <span class="hljs-keyword">USING</span>(orderID)
+      <span class="hljs-keyword">WHERE</span> <span class="hljs-keyword">DATE_FORMAT</span>(orderDate,<span class="hljs-string">'%b/%y'</span>) = <span class="hljs-string">'Apr/15'</span>
+      <span class="hljs-keyword">GROUP</span> <span class="hljs-keyword">BY</span> <span class="hljs-number">1</span>,<span class="hljs-number">2</span>,<span class="hljs-number">3</span>
+      <span class="hljs-keyword">ORDER</span> <span class="hljs-keyword">BY</span> <span class="hljs-number">4</span> <span class="hljs-keyword">DESC</span>
+      ;
+
+      <span class="hljs-comment">-- revenue by country in apr/2015</span>
+      <span class="hljs-keyword">SELECT</span>
+        <span class="hljs-keyword">DATE_FORMAT</span>(orderDate,<span class="hljs-string">'%b/%y'</span>) <span class="hljs-keyword">AS</span> mo_yr,
+        customers.country,
+        <span class="hljs-keyword">ROUND</span>(<span class="hljs-keyword">SUM</span>(order_details.unitPrice * order_details.quantity),<span class="hljs-number">2</span>) <span class="hljs-keyword">AS</span> revenue,
+        <span class="hljs-keyword">CONCAT</span>(<span class="hljs-keyword">ROUND</span>((<span class="hljs-keyword">SUM</span>(order_details.unitPrice * order_details.quantity)/(<span class="hljs-keyword">SELECT</span> <span class="hljs-keyword">SUM</span>(order_details.unitPrice * order_details.quantity) <span class="hljs-keyword">FROM</span> order_details <span class="hljs-keyword">LEFT</span> <span class="hljs-keyword">JOIN</span> orders <span class="hljs-keyword">USING</span>(orderID) <span class="hljs-keyword">WHERE</span> <span class="hljs-keyword">DATE_FORMAT</span>(orderDate,<span class="hljs-string">'%b/%y'</span>) = <span class="hljs-string">'Apr/15'</span> ))*<span class="hljs-number">100</span>,<span class="hljs-number">1</span>), <span class="hljs-string">' %'</span>) <span class="hljs-keyword">AS</span> pct_revenue
+      <span class="hljs-keyword">FROM</span> order_details
+      <span class="hljs-keyword">LEFT</span> <span class="hljs-keyword">JOIN</span> products <span class="hljs-keyword">USING</span>(productID)
+      <span class="hljs-keyword">LEFT</span> <span class="hljs-keyword">JOIN</span> orders <span class="hljs-keyword">USING</span>(orderID)
+      <span class="hljs-keyword">LEFT</span> <span class="hljs-keyword">JOIN</span> customers <span class="hljs-keyword">USING</span>(customerID)
+      <span class="hljs-keyword">WHERE</span> <span class="hljs-keyword">DATE_FORMAT</span>(orderDate,<span class="hljs-string">'%b/%y'</span>) = <span class="hljs-string">'Apr/15'</span>
+      <span class="hljs-keyword">GROUP</span> <span class="hljs-keyword">BY</span> <span class="hljs-number">1</span>,<span class="hljs-number">2</span> <span class="hljs-keyword">WITH</span> <span class="hljs-keyword">ROLLUP</span>
+      <span class="hljs-keyword">ORDER</span> <span class="hljs-keyword">BY</span> <span class="hljs-number">3</span> <span class="hljs-keyword">DESC</span>
+      ;
+
+      <span class="hljs-comment">-- Total revenue by product in apr/2015 in USA</span>
+      <span class="hljs-keyword">SELECT</span>
+        <span class="hljs-keyword">DATE_FORMAT</span>(orderDate,<span class="hljs-string">'%b/%y'</span>) <span class="hljs-keyword">AS</span> mo_yr,
+        productName,
+        categoryName,
+        <span class="hljs-keyword">ROUND</span>(<span class="hljs-keyword">SUM</span>(order_details.unitPrice * order_details.quantity),<span class="hljs-number">2</span>) <span class="hljs-keyword">AS</span> revenue,
+        <span class="hljs-keyword">CONCAT</span>(<span class="hljs-keyword">ROUND</span>((<span class="hljs-keyword">SUM</span>(order_details.unitPrice * order_details.quantity)/(<span class="hljs-keyword">SELECT</span> <span class="hljs-keyword">SUM</span>(order_details.unitPrice * order_details.quantity) <span class="hljs-keyword">FROM</span> order_details <span class="hljs-keyword">LEFT</span> <span class="hljs-keyword">JOIN</span> orders <span class="hljs-keyword">USING</span>(orderID) <span class="hljs-keyword">WHERE</span> <span class="hljs-keyword">DATE_FORMAT</span>(orderDate,<span class="hljs-string">'%b/%y'</span>) = <span class="hljs-string">'Apr/15'</span> ))*<span class="hljs-number">100</span>,<span class="hljs-number">1</span>), <span class="hljs-string">' %'</span>) <span class="hljs-keyword">AS</span> pct_revenue
+      <span class="hljs-keyword">FROM</span> order_details
+      <span class="hljs-keyword">LEFT</span> <span class="hljs-keyword">JOIN</span> products <span class="hljs-keyword">USING</span>(productID)
+      <span class="hljs-keyword">LEFT</span> <span class="hljs-keyword">JOIN</span> categories <span class="hljs-keyword">USING</span>(categoryID)
+      <span class="hljs-keyword">LEFT</span> <span class="hljs-keyword">JOIN</span> orders <span class="hljs-keyword">USING</span>(orderID)
+      <span class="hljs-keyword">LEFT</span> <span class="hljs-keyword">JOIN</span> customers <span class="hljs-keyword">USING</span>(customerID)
+      <span class="hljs-keyword">WHERE</span> <span class="hljs-keyword">DATE_FORMAT</span>(orderDate,<span class="hljs-string">'%b/%y'</span>) = <span class="hljs-string">'Apr/15'</span> <span class="hljs-keyword">AND</span> country = <span class="hljs-string">'USA'</span>
+      <span class="hljs-keyword">GROUP</span> <span class="hljs-keyword">BY</span> <span class="hljs-number">1</span>,<span class="hljs-number">2</span>,<span class="hljs-number">3</span>
+      <span class="hljs-keyword">ORDER</span> <span class="hljs-keyword">BY</span> <span class="hljs-number">4</span> 
+      ;
+      </code></pre>
+      <h2 id="exploring-shipping">EXPLORING SHIPPING</h2>
+      <ul>
+      <li>NorthWind works with 3 shipping companys (United Package, Speedy Express and Federal Shipping)</li>
+      <li>United Package is the company with most number of orders shipped 326 (39.28 %) and they operate most delivering to Germany and USA. 94% of orders they ship on time, with an average of $ 86.64 of freight.</li>
+      </ul>
+      <pre><code class="lang-sql"><span class="hljs-comment">-- how many sjhipping companys ?</span>
+      <span class="hljs-keyword">SELECT</span> * <span class="hljs-keyword">FROM</span> shippers;
+
+      <span class="hljs-comment">-- orders by shipper</span>
+      <span class="hljs-keyword">SELECT</span>
+        companyName,
+        <span class="hljs-keyword">COUNT</span>(<span class="hljs-keyword">DISTINCT</span> orderID) <span class="hljs-keyword">AS</span> shipped_orders,
+        <span class="hljs-keyword">CONCAT</span>(<span class="hljs-keyword">ROUND</span>((<span class="hljs-keyword">COUNT</span>(<span class="hljs-keyword">DISTINCT</span> orderID)/(<span class="hljs-keyword">SELECT</span> <span class="hljs-keyword">COUNT</span>(<span class="hljs-keyword">DISTINCT</span> orderID) <span class="hljs-keyword">FROM</span> orders))*<span class="hljs-number">100</span>,<span class="hljs-number">2</span>), <span class="hljs-string">' %'</span>) <span class="hljs-keyword">AS</span> pct_shipped_orders
+      <span class="hljs-keyword">FROM</span> shippers
+      <span class="hljs-keyword">LEFT</span> <span class="hljs-keyword">JOIN</span> orders <span class="hljs-keyword">USING</span>(shipperID)
+      <span class="hljs-keyword">GROUP</span> <span class="hljs-keyword">BY</span> <span class="hljs-number">1</span>
+      <span class="hljs-keyword">ORDER</span> <span class="hljs-keyword">BY</span> <span class="hljs-number">2</span> <span class="hljs-keyword">DESC</span>
+      ;
+
+      <span class="hljs-comment">-- orders shipped on time and delayed </span>
+      WITH CTE_orders_on_time 
+      AS (
+          <span class="hljs-keyword">SELECT</span>
+          companyName,
+          <span class="hljs-keyword">COUNT</span>(<span class="hljs-keyword">DISTINCT</span> orderID) <span class="hljs-keyword">AS</span> orders_on_time
+          <span class="hljs-keyword">FROM</span> shippers
+          <span class="hljs-keyword">LEFT</span> <span class="hljs-keyword">JOIN</span> orders <span class="hljs-keyword">USING</span>(shipperID)
+          <span class="hljs-keyword">WHERE</span> shippedDate &lt;= requiredDate
+          <span class="hljs-keyword">GROUP</span> <span class="hljs-keyword">BY</span> <span class="hljs-number">1</span> <span class="hljs-keyword">WITH</span> <span class="hljs-keyword">ROLLUP</span>
+          <span class="hljs-keyword">ORDER</span> <span class="hljs-keyword">BY</span> <span class="hljs-number">2</span> <span class="hljs-keyword">DESC</span>
+      ),
+      CTE_orders_delayed
+      <span class="hljs-keyword">AS</span> (
+          <span class="hljs-keyword">SELECT</span>
+          companyName,
+          <span class="hljs-keyword">COUNT</span>(<span class="hljs-keyword">DISTINCT</span> orderID) <span class="hljs-keyword">AS</span> orders_delayed
+          <span class="hljs-keyword">FROM</span> shippers
+          <span class="hljs-keyword">LEFT</span> <span class="hljs-keyword">JOIN</span> orders <span class="hljs-keyword">USING</span>(shipperID)
+          <span class="hljs-keyword">WHERE</span> shippedDate &gt; requiredDate
+          <span class="hljs-keyword">GROUP</span> <span class="hljs-keyword">BY</span> <span class="hljs-number">1</span> <span class="hljs-keyword">WITH</span> <span class="hljs-keyword">ROLLUP</span>
+          <span class="hljs-keyword">ORDER</span> <span class="hljs-keyword">BY</span> <span class="hljs-number">2</span> <span class="hljs-keyword">DESC</span>
+      )
+      <span class="hljs-keyword">SELECT</span> 
+        companyName,
+        orders_on_time,
+        orders_delayed,
+        <span class="hljs-keyword">CONCAT</span>(<span class="hljs-keyword">ROUND</span>(<span class="hljs-number">100</span>-(orders_delayed/orders_on_time)*<span class="hljs-number">100</span>,<span class="hljs-number">2</span>),<span class="hljs-string">' %'</span>) <span class="hljs-keyword">as</span> pct_shipped_on_time
+      <span class="hljs-keyword">FROM</span> CTE_orders_on_time
+      <span class="hljs-keyword">LEFT</span> <span class="hljs-keyword">JOIN</span> CTE_orders_delayed <span class="hljs-keyword">USING</span>(companyName)
+      ;
+      <span class="hljs-comment">-- another way</span>
+      WITH CTE_orders_delayed
+      AS (
+      <span class="hljs-keyword">SELECT</span>
+        companyName,
+        <span class="hljs-keyword">COUNT</span>(<span class="hljs-keyword">CASE</span> <span class="hljs-keyword">WHEN</span> (shippedDate &lt; requiredDate) <span class="hljs-keyword">THEN</span> <span class="hljs-number">1</span> <span class="hljs-keyword">ELSE</span> <span class="hljs-literal">NULL</span> <span class="hljs-keyword">END</span>) <span class="hljs-keyword">AS</span> orders_on_time,
+        <span class="hljs-keyword">COUNT</span>(<span class="hljs-keyword">CASE</span> <span class="hljs-keyword">WHEN</span> (shippedDate &gt; requiredDate) <span class="hljs-keyword">THEN</span> <span class="hljs-number">1</span> <span class="hljs-keyword">ELSE</span> <span class="hljs-literal">NULL</span> <span class="hljs-keyword">END</span>) <span class="hljs-keyword">AS</span> orders_delayed
+      <span class="hljs-keyword">FROM</span> shippers
+      <span class="hljs-keyword">LEFT</span> <span class="hljs-keyword">JOIN</span> orders <span class="hljs-keyword">USING</span>(shipperID)
+      <span class="hljs-keyword">GROUP</span> <span class="hljs-keyword">BY</span> <span class="hljs-number">1</span>
+      )
+      <span class="hljs-keyword">SELECT</span>
+        companyName,
+        orders_on_time,
+        orders_delayed,
+        <span class="hljs-keyword">CONCAT</span>(<span class="hljs-keyword">ROUND</span>(<span class="hljs-number">100</span>-(orders_delayed/orders_on_time)*<span class="hljs-number">100</span>,<span class="hljs-number">2</span>),<span class="hljs-string">' %'</span>) <span class="hljs-keyword">as</span> pct_shipped_on_time
+      <span class="hljs-keyword">FROM</span> CTE_orders_delayed
+      <span class="hljs-keyword">ORDER</span> <span class="hljs-keyword">BY</span> <span class="hljs-number">2</span> <span class="hljs-keyword">DESC</span>
+      ;
+
+      <span class="hljs-comment">-- orders by shipper per country</span>
+      <span class="hljs-keyword">SELECT</span>
+        shippers.companyName,
+        country,
+        <span class="hljs-keyword">COUNT</span>(<span class="hljs-keyword">DISTINCT</span> orderID) <span class="hljs-keyword">AS</span> shipped_orders,
+        <span class="hljs-keyword">CONCAT</span>(<span class="hljs-keyword">ROUND</span>((<span class="hljs-keyword">COUNT</span>(<span class="hljs-keyword">DISTINCT</span> orderID)/(<span class="hljs-keyword">SELECT</span> <span class="hljs-keyword">COUNT</span>(<span class="hljs-keyword">DISTINCT</span> orderID) <span class="hljs-keyword">FROM</span> orders))*<span class="hljs-number">100</span>,<span class="hljs-number">2</span>), <span class="hljs-string">' %'</span>) <span class="hljs-keyword">AS</span> pct_shipped_orders
+      <span class="hljs-keyword">FROM</span> shippers
+      <span class="hljs-keyword">LEFT</span> <span class="hljs-keyword">JOIN</span> orders <span class="hljs-keyword">USING</span>(shipperID)
+      <span class="hljs-keyword">LEFT</span> <span class="hljs-keyword">JOIN</span> order_details <span class="hljs-keyword">USING</span>(orderID)
+      <span class="hljs-keyword">LEFT</span> <span class="hljs-keyword">JOIN</span> customers <span class="hljs-keyword">USING</span>(customerID)
+      <span class="hljs-keyword">GROUP</span> <span class="hljs-keyword">BY</span> <span class="hljs-number">1</span>,<span class="hljs-number">2</span>
+      <span class="hljs-keyword">ORDER</span> <span class="hljs-keyword">BY</span> <span class="hljs-number">3</span> <span class="hljs-keyword">DESC</span>
+      ;
+
+      <span class="hljs-comment">-- Are shipping costs consistent across providers?</span>
+      <span class="hljs-keyword">SELECT</span>
+        companyName,
+        <span class="hljs-keyword">CONCAT</span>(<span class="hljs-string">'$ '</span>,<span class="hljs-keyword">ROUND</span>(<span class="hljs-keyword">AVG</span>(freight),<span class="hljs-number">2</span>)) <span class="hljs-keyword">AS</span> avg_shipping_cost
+      <span class="hljs-keyword">FROM</span> shippers
+      <span class="hljs-keyword">LEFT</span> <span class="hljs-keyword">JOIN</span> orders <span class="hljs-keyword">USING</span>(shipperID)
+      <span class="hljs-keyword">GROUP</span> <span class="hljs-keyword">BY</span> <span class="hljs-number">1</span>
+      <span class="hljs-keyword">ORDER</span> <span class="hljs-keyword">BY</span> <span class="hljs-number">2</span> <span class="hljs-keyword">DESC</span>
+      </code></pre>
+
+    </div>      
+  </div>
+  
+</body>
+</html>

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Markdown in HTML</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>>
+  <link rel="stylesheet" href="pages.css">
+</head>
+<body>
+  <div class="project-details">
+    <div class="back-btn">
+      <a href="../index.html"><- Back</a>
+    </div>
+    <div class="header-div">
+        <div class="img-div">
+            <img src="/Assets/covid19.jpg" class="project-image" alt="Project Image">
+        </div>
+        <div class="project-info">
+            <h1 class="project-title">World COVID-19 Data</h1>
+            <p>Explore the global data on COVID-19 cases, deaths and vaccinations.</p>
+            <div class="github-div">
+              <a href="https://github.com/PatrickNAquino/World-Covid-19-data" target="_blank"><i class="fab fa-github"></i> View source data</a>
+            </div>
+        </div> 
+    </div>
+    
+    <div class="project-content">
+      <h2 id="overview">Overview</h2>
+      <p>The dataset provided by <a href="https://ourworldindata.org/" target="_blank">Our World in Data</a> brings us into the history of the COVID-19 pandemic from Jan/2020 until Apr/2024 with the possibility to analyse cases, deaths and vaccination across the globe.</p>
+      <p>Link to the dataset: <a href="https://github.com/owid/covid-19-data/tree/master/public/data" target="_blank">OWID-COVID-19-Data</a></p>
+      <h2 id="dax">DAX</h2>
+      <p>The dashboard allow us to track all the data about the COVID-19 scenario in the world. So to understand the data I had to create some measures.</p>
+      <ul>
+      <li>Population = MAX(&#39;owid-covid-data&#39;[population]) </li>
+      <li>Total Cases = SUM(&#39;owid-covid-data&#39;[new_cases])</li>
+      <li>Total Deaths = SUM(&#39;owid-covid-data&#39;[new_deaths])</li>
+      <li>Total Tests = SUM(&#39;owid-covid-data&#39;[new_tests])</li>
+      <li>Total Vaccines = SUM(&#39;owid-covid-data&#39;[new_vaccinations])</li>
+      <li>People Vaccinated (full) = MAX(&#39;owid-covid-data&#39;[people_fully_vaccinated])</li>
+      <li>% Population Vaccinated = [People Vaccinated (full)]/[Population]</li>
+      <li>% Positive Tests = DIVIDE([Total Cases],[Total Tests])</li>
+      <li>% Positive Tests = DIVIDE([Total Cases],[Total Tests])</li>
+      <li>% Mortality = DIVIDE([Total Deaths],[Population])</li>
+      <li>% Infection Fatality = DIVIDE([Total Deaths],[Total Cases])</li>
+      </ul>
+      <h2 id="analysis">Analysis</h2>
+      <p>To manipulate this dashboard it&#39;s necessary to use the &quot;Graphs_Parameters&quot; slicer, this will allow to change the parameters in the graphics accordingly to the user need. It&#39;s possible to visualize the following parameters:</p>
+      <ul>
+      <li>Cases;</li>
+      <li>Deaths;</li>
+      <li>% Population Vaccinated;</li>
+      <li>% Positive Tests;</li>
+      <li>% Positive Tests;</li>
+      <li>% Mortality;</li>
+      <li>% Infection Fatality;</li>
+      </ul>
+      <p>Until Apr/2024 in the world we had 775M positive cases of COVID-19 with 7M deaths, corresponding to a 0.9% of infected people dying. If we consider all the global population this represents a mortality of 0.5%.</p>
+      <ul>
+      <li>United States and China are the top counties in COVID-19 cases reported. Cases were higher back in 2022 with 424M people infected, this represents 55% of cases in just 1 year.</li>
+      <li>USA leads total deaths also, followed by Brazil with 1.2M and 702K cases respectivelly.</li>
+      <li>The peak of death occured in 2021 with 57% of total deaths. In this period the USA registered 40% of the total deaths in the country;</li>
+      <li>With 89% of global population vaccinated in 2024, the cases and mortality dropped signifficantly. But the scennario wasn&#39;t that back in 2021 where the mortality rate achieved the highest value 0.2%. Brazil, United Kingdom and USA suffered a lot with deaths in this period;</li>
+      <li>Even with higher number of cases in 2022, the effect of vaccination can be visualized through the lowest infection fatality rate, just 0.3%, where in 2020 and 2021 we experienced 2.4% and 1.8%. This show us that people are safer even when they are infected with the virus.</li>
+      </ul>
+      <p>Now in 2024 COVID-19 is still between us, but the data shows that the effects of the virus is now attenuated. The world is now safer and even with the possibility of contamination our chances to survive are better.</p>
+    
+      <h2>POWER BI DASHBOARD</h2>
+      <embed src="https://app.powerbi.com/view?r=eyJrIjoiNTIwOGQ4MjktMWRkOC00ZGQwLWI3ZTktOTczNWQ2NzVkNjBiIiwidCI6Ijc5NzgyMzFkLTA4ZjAtNDVhNy05ZDEzLTc3YzNmYTk2OGI4OCJ9" style="aspect-ratio: 16/9; width: 100%; height: 100%";/>
+  </div>
+  
+</body>
+</html>
