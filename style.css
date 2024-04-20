@@ -62,6 +62,7 @@ header p {
 
 .header-container {
   gap: .8rem;
+  border-right: 1px solid #d1d5db;
 }
 
 .header-container * {
@@ -192,6 +193,9 @@ header p {
   }
   .header-container {
     width: 100%;
+    border-right: none;
+    border-bottom: 1px solid #d1d5db;
+    padding-bottom: 2rem;
   }
   header {
     align-items: center; /* Changed to center */
