@@ -12,8 +12,8 @@ body {
   font-size: 1.6rem;
   margin: 0;
   padding: 0;
-  background-color: #f8fafc;
   color: #333;
+  background-color: #f9fafb;
 }
 
 .container {
@@ -100,7 +100,7 @@ header p {
   display: flex;
   justify-content: center;
   flex-direction: row;
-  gap: 1.5rem;
+  gap: 2rem;
   flex-wrap: wrap;
   width: calc(70% - 1rem); /* Adjusted width */
   /*margin-left: 0;*/
@@ -108,23 +108,22 @@ header p {
 }
 
 .project {
-  width: 46%;
+  width: 48%;
   height: auto;
   aspect-ratio: 16/9;
   display: flex; /* Added */
   align-items: center; /* Added */
   flex-direction: column;
   gap: 1rem;
-  background-color: #fff;
   border-radius: 1rem;
-  padding: 1rem;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 .project-description{
-  width: 100%;
+  width: 95%;
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  padding: 0 2rem 1rem 2rem;
 }
 
 .project-description * {
@@ -157,11 +156,10 @@ header p {
 .project-image {
   overflow: hidden;
   aspect-ratio: 16/9;
-  border-radius: 1rem;
   width: 100%;
   height: 50%;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  
+  border-radius: 1rem 1rem 0 0;
 }
 
 .project-image img {
