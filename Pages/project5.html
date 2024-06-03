@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Danny-s-Diner</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <link rel="stylesheet" href="pages.css">
+</head>
+<body>
+  <div class="project-details">
+    <div class="back-btn">
+      <a href="../index.html"><- Back</a>
+    </div>
+    <div class="header-div">
+        <div class="img-div">
+            <img src="/Assets/Dennys Diner cover.jpg" class="project-image" alt="Project Image">
+        </div>
+        <div class="project-info">
+            <h1 class="project-title">Customer Behavior Analysis</h1>
+            <p>Customer behavior analysis of the first case study from the 8 week SQL challenge.</p>
+            <div class="github-div">
+              <a href="https://github.com/PatrickNAquino/Danny-s-Diner" target="_blank"><i class="fab fa-github" target="_blank"></i> View source data</a>
+            </div>
+        </div> 
+    </div>
+    
+    <div class="project-content">
+      <h1 id="danny-s-diner">Danny-s-Diner</h1>
+      <p>First case study from the 8 week SQL challenge (<a href="https://8weeksqlchallenge.com/case-study-1/">https://8weeksqlchallenge.com/case-study-1/</a>)</p>
+      <p><img src="https://github.com/PatrickNAquino/Danny-s-Diner/assets/118391206/823b9411-27f4-44b2-b66a-3bb7f98c654e" alt="image"></p>
+      <h3 id="introduction">Introduction</h3>
+      <p>Danny seriously loves Japanese food so in the beginning of 2021, he decides to embark upon a risky venture and opens up a cute little restaurant that sells his 3 favourite foods: sushi, curry and ramen.</p>
+      <p>Danny’s Diner is in need of your assistance to help the restaurant stay afloat - the restaurant has captured some very basic data from their few months of operation but have no idea how to use their data to help them run the business.</p>
+      <h3 id="problem-statement">Problem Statement</h3>
+      <p>Danny wants to use the data to answer a few simple questions about his customers, especially about their visiting patterns, how much money they’ve spent and also which menu items are their favourite. Having this deeper connection with his customers will help him deliver a better and more personalised experience for his loyal customers.</p>
+      <p>He plans on using these insights to help him decide whether he should expand the existing customer loyalty program - additionally he needs help to generate some basic datasets so his team can easily inspect the data without needing to use SQL.</p>
+      <p>Danny has provided you with a sample of his overall customer data due to privacy issues - but he hopes that these examples are enough for you to write fully functioning SQL queries to help him answer his questions!</p>
+      <p>Danny has shared with you 3 key datasets for this case study:</p>
+      <ul>
+      <li>sales</li>
+      <li>menu</li>
+      <li>members</li>
+      </ul>
+      <h3 id="entity-relationship-diagram">Entity Relationship Diagram</h3>
+      <p><img src="https://github.com/PatrickNAquino/Danny-s-Diner/assets/118391206/1a77fa47-415e-41cb-8867-a191c50b89e4" alt="image"></p>
+      <h3 id="case-study-questions">Case Study Questions</h3>
+      <p>Each of the following case study questions can be answered using a single SQL statement:</p>
+      <ol>
+      <li>What is the total amount each customer spent at the restaurant?</li>
+      <li>How many days has each customer visited the restaurant?</li>
+      <li>What was the first item from the menu purchased by each customer?</li>
+      <li>What is the most purchased item on the menu and how many times was it purchased by all customers?</li>
+      <li>Which item was the most popular for each customer?</li>
+      <li>Which item was purchased first by the customer after they became a member?</li>
+      <li>Which item was purchased just before the customer became a member?</li>
+      <li>What is the total items and amount spent for each member before they became a member?</li>
+      <li>If each $1 spent equates to 10 points and sushi has a 2x points multiplier - how many points would each customer have?</li>
+      <li>In the first week after a customer joins the program (including their join date) they earn 2x points on all items, not just sushi - how many points do customer A and B have at the end of January?</li>
+      </ol>
+      <h3 id="bonus-questions">Bonus Questions</h3>
+      <p>Join All The Things<br><br>
+      The following questions are related creating basic data tables that Danny and his team can use to quickly derive insights without needing to join the underlying tables using SQL.</p>
+      <p>Recreate the following table output using the available data:</p>
+      <p>customer_id    order_date    product_name    price    member
+      A    2021-01-01    curry    15    N
+      A    2021-01-01    sushi    10    N
+      A    2021-01-07    curry    15    Y
+      A    2021-01-10    ramen    12    Y
+      A    2021-01-11    ramen    12    Y
+      A    2021-01-11    ramen    12    Y
+      B    2021-01-01    curry    15    N
+      B    2021-01-02    curry    15    N
+      B    2021-01-04    sushi    10    N
+      B    2021-01-11    sushi    10    Y
+      B    2021-01-16    ramen    12    Y
+      B    2021-02-01    ramen    12    Y
+      C    2021-01-01    ramen    12    N
+      C    2021-01-01    ramen    12    N
+      C    2021-01-07    ramen    12    N</p>
+      <p>Rank All The Things<br><br>
+      Danny also requires further information about the ranking of customer products, but he purposely does not need the ranking for non-member purchases so he expects null ranking values for the records when customers are not yet part of the loyalty program.</p>
+      <p>customer_id    order_date    product_name    price    member    ranking
+      A    2021-01-01    curry    15    N    null
+      A    2021-01-01    sushi    10    N    null
+      A    2021-01-07    curry    15    Y    1
+      A    2021-01-10    ramen    12    Y    2
+      A    2021-01-11    ramen    12    Y    3
+      A    2021-01-11    ramen    12    Y    3
+      B    2021-01-01    curry    15    N    null
+      B    2021-01-02    curry    15    N    null
+      B    2021-01-04    sushi    10    N    null
+      B    2021-01-11    sushi    10    Y    1
+      B    2021-01-16    ramen    12    Y    2
+      B    2021-02-01    ramen    12    Y    3
+      C    2021-01-01    ramen    12    N    null
+      C    2021-01-01    ramen    12    N    null
+      C    2021-01-07    ramen    12    N    null</p>
+      <h3 id="answers">Answers</h3>
+      <pre><code class="lang-mysql"><span class="hljs-comment">-- Case Study #1 - Danny's Diner</span>
+
+      <span class="hljs-comment">/* --------------------
+         Case Study Questions
+         --------------------*/</span>    
+
+      <span class="hljs-comment">-- 1. What is the total amount each customer spent at the restaurant?</span>
+      <span class="hljs-keyword">SELECT</span>
+        sales.customer_id,
+        <span class="hljs-keyword">SUM</span>(menu.price) <span class="hljs-keyword">AS</span> total_amount
+      <span class="hljs-keyword">FROM</span> sales
+      <span class="hljs-keyword">LEFT</span> <span class="hljs-keyword">JOIN</span> menu <span class="hljs-keyword">USING</span>(product_id)
+      <span class="hljs-keyword">GROUP</span> <span class="hljs-keyword">BY</span> <span class="hljs-number">1</span>
+      <span class="hljs-keyword">ORDER</span> <span class="hljs-keyword">BY</span> <span class="hljs-number">2</span> <span class="hljs-keyword">DESC</span>
+      ;
+
+      <span class="hljs-comment">-- 2. How many days has each customer visited the restaurant?</span>
+      <span class="hljs-keyword">SELECT</span>
+          customer_id,
+          <span class="hljs-keyword">COUNT</span>(<span class="hljs-keyword">DISTINCT</span> order_date) <span class="hljs-keyword">AS</span> <span class="hljs-keyword">days</span>
+      <span class="hljs-keyword">FROM</span> sales
+      <span class="hljs-keyword">GROUP</span> <span class="hljs-keyword">BY</span> <span class="hljs-number">1</span>
+      <span class="hljs-keyword">ORDER</span> <span class="hljs-keyword">BY</span> <span class="hljs-number">2</span> <span class="hljs-keyword">DESC</span>
+      ;
+
+      <span class="hljs-comment">-- 3. What was the first item from the menu purchased by each customer?</span>
+      <span class="hljs-keyword">SELECT</span>
+          customer_id,
+          <span class="hljs-keyword">MIN</span>(order_date)
+      <span class="hljs-keyword">FROM</span> sales
+      <span class="hljs-keyword">GROUP</span> <span class="hljs-keyword">BY</span> <span class="hljs-number">1</span>
+      ;
+
+      <span class="hljs-keyword">SELECT</span>
+        customer_id,
+        product_name
+      <span class="hljs-keyword">FROM</span>(
+      <span class="hljs-keyword">SELECT</span>
+      customer_id,
+      product_name,
+      ROW_NUMBER() <span class="hljs-keyword">OVER</span>(<span class="hljs-keyword">PARTITION</span> <span class="hljs-keyword">BY</span> customer_id <span class="hljs-keyword">ORDER</span> <span class="hljs-keyword">BY</span> product_name, customer_id <span class="hljs-keyword">DESC</span>) <span class="hljs-keyword">as</span> rn
+      <span class="hljs-keyword">FROM</span> sales
+      <span class="hljs-keyword">INNER</span> <span class="hljs-keyword">JOIN</span> menu <span class="hljs-keyword">USING</span>(product_id)
+      <span class="hljs-keyword">WHERE</span> order_date = <span class="hljs-string">'2021-01-01'</span> <span class="hljs-comment">-- min date is the same for all customers</span>
+      ) <span class="hljs-keyword">AS</span> sub
+      <span class="hljs-keyword">WHERE</span> rn = <span class="hljs-number">1</span>
+      ;
+
+      <span class="hljs-comment">-- 4. What is the most purchased item on the menu and how many times was it purchased by all customers?</span>
+      <span class="hljs-keyword">SELECT</span>
+          product_name,
+          <span class="hljs-keyword">COUNT</span>(product_name)
+      <span class="hljs-keyword">FROM</span> sales
+      <span class="hljs-keyword">INNER</span> <span class="hljs-keyword">JOIN</span> menu <span class="hljs-keyword">USING</span>(product_id)
+      <span class="hljs-keyword">GROUP</span> <span class="hljs-keyword">BY</span> <span class="hljs-number">1</span>
+      <span class="hljs-keyword">ORDER</span> <span class="hljs-keyword">BY</span> <span class="hljs-number">2</span> <span class="hljs-keyword">DESC</span>
+      <span class="hljs-keyword">LIMIT</span> <span class="hljs-number">1</span>
+      ;
+      <span class="hljs-comment">-- ramen is the most purchased product</span>
+
+      <span class="hljs-keyword">SELECT</span>
+        customer_id,
+        <span class="hljs-keyword">COUNT</span>(product_id) times_purchased_ramen
+      <span class="hljs-keyword">FROM</span> sales
+      <span class="hljs-keyword">INNER</span> <span class="hljs-keyword">JOIN</span> menu <span class="hljs-keyword">USING</span>(product_id)
+      <span class="hljs-keyword">WHERE</span> product_name = <span class="hljs-string">'ramen'</span>
+      <span class="hljs-keyword">GROUP</span> <span class="hljs-keyword">BY</span> <span class="hljs-number">1</span>
+      ;
+
+      <span class="hljs-comment">-- 5. Which item was the most popular for each customer?</span>
+
+      <span class="hljs-keyword">SELECT</span>
+      customer_id,
+      product_name,
+      qtd_product
+      <span class="hljs-keyword">FROM</span>(
+      <span class="hljs-keyword">SELECT</span>
+          customer_id,
+          product_name,
+          <span class="hljs-keyword">COUNT</span>(product_name) <span class="hljs-keyword">AS</span> qtd_product,
+          ROW_NUMBER() <span class="hljs-keyword">OVER</span>(<span class="hljs-keyword">PARTITION</span> <span class="hljs-keyword">BY</span> customer_id <span class="hljs-keyword">ORDER</span> <span class="hljs-keyword">BY</span> <span class="hljs-keyword">COUNT</span>(product_name) <span class="hljs-keyword">DESC</span>, customer_id) <span class="hljs-keyword">as</span> rn
+      <span class="hljs-keyword">FROM</span> sales
+      <span class="hljs-keyword">INNER</span> <span class="hljs-keyword">JOIN</span> menu <span class="hljs-keyword">USING</span>(product_id)
+      <span class="hljs-keyword">GROUP</span> <span class="hljs-keyword">BY</span> <span class="hljs-number">1</span>,<span class="hljs-number">2</span>
+      <span class="hljs-keyword">ORDER</span> <span class="hljs-keyword">BY</span> <span class="hljs-number">1</span>,<span class="hljs-number">3</span> <span class="hljs-keyword">DESC</span>
+      ) <span class="hljs-keyword">AS</span> sub
+      <span class="hljs-keyword">WHERE</span> rn = <span class="hljs-number">1</span>
+      <span class="hljs-keyword">GROUP</span> <span class="hljs-keyword">BY</span> <span class="hljs-number">1</span>,<span class="hljs-number">2</span>
+      ;
+
+      <span class="hljs-comment">-- 6. Which item was purchased first by the customer after they became a member?</span>
+      <span class="hljs-keyword">SELECT</span>
+          customer_id,
+          product_name
+      <span class="hljs-keyword">FROM</span>(
+      <span class="hljs-keyword">SELECT</span>
+          *,
+          ROW_NUMBER() <span class="hljs-keyword">OVER</span>(<span class="hljs-keyword">PARTITION</span> <span class="hljs-keyword">BY</span> customer_id <span class="hljs-keyword">ORDER</span> <span class="hljs-keyword">BY</span> join_date, customer_id) <span class="hljs-keyword">AS</span> rn
+      <span class="hljs-keyword">FROM</span> sales
+      <span class="hljs-keyword">LEFT</span> <span class="hljs-keyword">JOIN</span> menu <span class="hljs-keyword">USING</span>(product_id)
+      <span class="hljs-keyword">LEFT</span> <span class="hljs-keyword">JOIN</span> members <span class="hljs-keyword">USING</span>(customer_id)
+      <span class="hljs-keyword">WHERE</span> order_date &gt;= join_date
+      ) <span class="hljs-keyword">AS</span> sub
+      <span class="hljs-keyword">WHERE</span> rn = <span class="hljs-number">1</span>
+      ;
+
+      <span class="hljs-comment">-- 7. Which item was purchased just before the customer became a member?</span>
+      <span class="hljs-keyword">SELECT</span>
+          customer_id,
+          product_name
+      <span class="hljs-keyword">FROM</span>(
+      <span class="hljs-keyword">SELECT</span>
+          *,
+          ROW_NUMBER() <span class="hljs-keyword">OVER</span>(<span class="hljs-keyword">PARTITION</span> <span class="hljs-keyword">BY</span> customer_id <span class="hljs-keyword">ORDER</span> <span class="hljs-keyword">BY</span> join_date, customer_id) <span class="hljs-keyword">AS</span> rn
+      <span class="hljs-keyword">FROM</span> sales
+      <span class="hljs-keyword">LEFT</span> <span class="hljs-keyword">JOIN</span> menu <span class="hljs-keyword">USING</span>(product_id)
+      <span class="hljs-keyword">LEFT</span> <span class="hljs-keyword">JOIN</span> members <span class="hljs-keyword">USING</span>(customer_id)
+      <span class="hljs-keyword">WHERE</span> order_date &lt; join_date
+      ) <span class="hljs-keyword">AS</span> sub
+      <span class="hljs-keyword">WHERE</span> rn = <span class="hljs-number">1</span>
+      ;
+
+      <span class="hljs-comment">-- 8. What is the total items and amount spent for each member before they became a member?</span>
+      <span class="hljs-keyword">SELECT</span>
+          customer_id,
+        <span class="hljs-keyword">COUNT</span>(product_id) <span class="hljs-keyword">AS</span> items,
+        <span class="hljs-keyword">SUM</span>(price) <span class="hljs-keyword">AS</span> amount_spent
+      <span class="hljs-keyword">FROM</span> sales
+      <span class="hljs-keyword">LEFT</span> <span class="hljs-keyword">JOIN</span> menu <span class="hljs-keyword">USING</span>(product_id)
+      <span class="hljs-keyword">LEFT</span> <span class="hljs-keyword">JOIN</span> members <span class="hljs-keyword">USING</span>(customer_id)
+      <span class="hljs-keyword">WHERE</span> order_date &lt; join_date
+      <span class="hljs-keyword">GROUP</span> <span class="hljs-keyword">BY</span> <span class="hljs-number">1</span>
+      ;
+
+      <span class="hljs-comment">-- 9.  If each $1 spent equates to 10 points and sushi has a 2x points multiplier - how many points would each customer have?</span>
+      <span class="hljs-keyword">SELECT</span>
+        customer_id,
+        <span class="hljs-keyword">SUM</span>(<span class="hljs-keyword">CASE</span>
+        <span class="hljs-keyword">WHEN</span> product_name = <span class="hljs-string">'sushi'</span> <span class="hljs-keyword">THEN</span> price*<span class="hljs-number">10</span>*<span class="hljs-number">2</span> <span class="hljs-keyword">ELSE</span> price*<span class="hljs-number">10</span> <span class="hljs-keyword">END</span>) <span class="hljs-keyword">AS</span> points
+      <span class="hljs-keyword">FROM</span> sales
+      <span class="hljs-keyword">LEFT</span> <span class="hljs-keyword">JOIN</span> menu <span class="hljs-keyword">USING</span>(product_id)
+      <span class="hljs-keyword">LEFT</span> <span class="hljs-keyword">JOIN</span> members <span class="hljs-keyword">USING</span>(customer_id)
+      <span class="hljs-keyword">WHERE</span> order_date &gt;= join_date
+      <span class="hljs-keyword">GROUP</span> <span class="hljs-keyword">BY</span> <span class="hljs-number">1</span>
+      ;
+
+      <span class="hljs-comment">-- 10. In the first week after a customer joins the program (including their join date) they earn 2x points on all items, not just sushi - how many points do customer A and B have at the end of January?</span>
+      <span class="hljs-keyword">SELECT</span>
+          customer_id,
+        <span class="hljs-keyword">SUM</span>(points) <span class="hljs-keyword">AS</span> points
+      <span class="hljs-keyword">FROM</span>(
+      <span class="hljs-keyword">SELECT</span>
+        customer_id,
+        product_name,
+        price,
+        order_date,
+        join_date,
+        order_date - join_date,
+        <span class="hljs-keyword">SUM</span>(<span class="hljs-keyword">CASE</span>
+            <span class="hljs-keyword">WHEN</span> product_name = <span class="hljs-string">'sushi'</span> <span class="hljs-keyword">THEN</span> price*<span class="hljs-number">10</span>*<span class="hljs-number">2</span>
+            <span class="hljs-keyword">WHEN</span> (order_date - join_date) &lt; <span class="hljs-number">7</span> <span class="hljs-keyword">THEN</span> price*<span class="hljs-number">10</span>*<span class="hljs-number">2</span>
+            <span class="hljs-keyword">ELSE</span> price*<span class="hljs-number">10</span>
+        <span class="hljs-keyword">END</span>) <span class="hljs-keyword">AS</span> points
+      <span class="hljs-keyword">FROM</span> sales
+      <span class="hljs-keyword">LEFT</span> <span class="hljs-keyword">JOIN</span> menu <span class="hljs-keyword">USING</span>(product_id)
+      <span class="hljs-keyword">LEFT</span> <span class="hljs-keyword">JOIN</span> members <span class="hljs-keyword">USING</span>(customer_id)
+      <span class="hljs-keyword">WHERE</span> order_date &gt;= join_date
+          <span class="hljs-keyword">AND</span> <span class="hljs-keyword">MONTH</span>(order_date) = <span class="hljs-string">'01'</span>
+      <span class="hljs-keyword">GROUP</span> <span class="hljs-keyword">BY</span> <span class="hljs-number">1</span>,<span class="hljs-number">2</span>,<span class="hljs-number">3</span>,<span class="hljs-number">4</span>,<span class="hljs-number">5</span>) <span class="hljs-keyword">AS</span> sub
+      <span class="hljs-keyword">GROUP</span> <span class="hljs-keyword">BY</span> <span class="hljs-number">1</span>
+      ;
+
+      <span class="hljs-comment">-- BONUS QUESTIONS</span>
+
+      <span class="hljs-keyword">SELECT</span>
+          customer_id,
+          order_date,
+          product_name,
+          price,
+          <span class="hljs-keyword">CASE</span>
+              <span class="hljs-keyword">WHEN</span> order_date &gt;= join_date <span class="hljs-keyword">THEN</span> <span class="hljs-string">'y'</span> <span class="hljs-keyword">ELSE</span> <span class="hljs-string">'N'</span>
+          <span class="hljs-keyword">END</span> <span class="hljs-keyword">AS</span> <span class="hljs-keyword">member</span>
+      <span class="hljs-keyword">FROM</span> sales
+      <span class="hljs-keyword">LEFT</span> <span class="hljs-keyword">JOIN</span> menu <span class="hljs-keyword">USING</span>(product_id)
+      <span class="hljs-keyword">LEFT</span> <span class="hljs-keyword">JOIN</span> members <span class="hljs-keyword">USING</span>(customer_id)
+      ;
+
+      <span class="hljs-comment">-- Danny also requires further information about the ranking of customer products, but he purposely does not need the ranking for non-member purchases so he expects null ranking values for the records when customers are not yet part of the loyalty program.</span>
+
+      WITH CTE_joined_table
+      AS (
+      <span class="hljs-keyword">SELECT</span>
+            customer_id,
+          order_date,
+          product_name,
+          price,
+          <span class="hljs-keyword">CASE</span>
+              <span class="hljs-keyword">WHEN</span> order_date &gt;= join_date <span class="hljs-keyword">THEN</span> <span class="hljs-string">'y'</span> <span class="hljs-keyword">ELSE</span> <span class="hljs-string">'N'</span>
+          <span class="hljs-keyword">END</span> <span class="hljs-keyword">AS</span> <span class="hljs-keyword">member</span>,
+          ROW_NUMBER() <span class="hljs-keyword">OVER</span>(<span class="hljs-keyword">PARTITION</span> <span class="hljs-keyword">BY</span> customer_id) <span class="hljs-keyword">AS</span> rn
+      <span class="hljs-keyword">FROM</span> sales
+      <span class="hljs-keyword">LEFT</span> <span class="hljs-keyword">JOIN</span> menu <span class="hljs-keyword">USING</span>(product_id)
+      <span class="hljs-keyword">LEFT</span> <span class="hljs-keyword">JOIN</span> members <span class="hljs-keyword">USING</span>(customer_id)    
+      )
+      <span class="hljs-keyword">SELECT</span>
+       customer_id,
+       order_date,
+       product_name,
+       price,
+       <span class="hljs-keyword">member</span>,
+       <span class="hljs-keyword">CASE</span> <span class="hljs-keyword">WHEN</span> <span class="hljs-keyword">member</span> = <span class="hljs-string">'Y'</span> <span class="hljs-keyword">THEN</span> <span class="hljs-keyword">RANK</span>() <span class="hljs-keyword">OVER</span>(<span class="hljs-keyword">PARTITION</span> <span class="hljs-keyword">BY</span> customer_id, <span class="hljs-keyword">member</span> <span class="hljs-keyword">ORDER</span> <span class="hljs-keyword">BY</span> rn) <span class="hljs-keyword">ELSE</span> <span class="hljs-literal">NULL</span> <span class="hljs-keyword">END</span> <span class="hljs-keyword">AS</span> ranking
+       <span class="hljs-keyword">FROM</span> CTE_joined_table
+       ;
+      </code></pre>
+
+    </div>
+      
+  </div>
+  
+</body>
+</html>
