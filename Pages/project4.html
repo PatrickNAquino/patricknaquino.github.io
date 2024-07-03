@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Project 4 - World Unicorn Companies</title>
+  <title>Project 4 - AdventureWorks</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <link rel="stylesheet" href="pages.css">
@@ -15,23 +15,258 @@
     </div>
     <div class="header-div">
         <div class="img-div">
-            <img src="/Assets/Unicorn-img.webp" class="project-image" alt="Project Image">
+            <img src="/Assets/AdventureWorks_Logo.png" class="project-image" alt="Project Image">
         </div>
         <div class="project-info">
-            <h1 class="project-title">World Unicorn Companies</h1>
-            <p>World scenario of privately held startup company valued at over US$1 billion. as of March 2022.</p>
+            <h1 class="project-title">AdventureWorks</h1>
+            <p>Performance analysis of a global manufacturing company that produces cycling equipment and accessories.</p>
             <div class="github-div">
-              <a href="https://github.com/PatrickNAquino/World-Unicorn-Companies" target="_blank"><i class="fab fa-github" target="_blank"></i> View source data</a>
+              <a href="https://github.com/PatrickNAquino/AdventureWorks" target="_blank"><i class="fab fa-github" target="_blank"></i> View source data</a>
             </div>
         </div> 
     </div>
     
     <div class="project-content">
-      <h2 id="overview">OVERVIEW</h2>
-      <p>Used Power Query and Excel to analyse data about private companies with a valuation over $1 billion as of March 2022, including each company&#39;s current valuation, funding, country of origin, industry, select investors, and the years they were founded and became unicorns.</p>
-      <p>Link to the dataset: <a href="https://app.mavenanalytics.io/datasets?search=unicorn" target="_blank">Unicorn companies dataset</a></p>
-      <h2 id="analysis">ANALYSIS</h2>
-      <p><img src="https://github.com/PatrickNAquino/World-Unicorn-Companies/assets/118391206/46d50394-a418-40c5-a746-0646f992ee05" alt="image" style="max-width: 100%;"></p>
+      <h2 id="overview">Overview</h2>
+      <p>The AdventureWorks dataset provided by microsoft, offers sample data with information about a fictitious company with transactions, returns, products, customers and sales territories.</p>
+      <p>The idea is to analyse this dataset in order to understand the company KPI&#39;s (sales, revenue, profit, returns), compare regional performance, analyze product-level trends and identify high-value customers.</p>
+      <h2 id="the-data-model">The Data Model</h2>
+      <p>After transform, clean and load the data needed through power query the model achieved is a snowflake with two fact tables (&#39;Sales Data&#39; and &#39;Returns Data&#39;) and six dimentions tables.
+      Data flows from the lookups tables to the fact tables in a 1 to many relationship.</p>
+      <p>The calendar table was created following the steps below:
+      <img src="https://github.com/PatrickNAquino/AdventureWorks/assets/118391206/96aec943-0524-4675-8a9c-372c4ffba5c3" alt="image" style="width: 100%; height: 100%;" >
+      <img src="https://github.com/PatrickNAquino/AdventureWorks/assets/118391206/b46f9bda-78fd-4aa2-beb7-c4d39a77a615" alt="image" style="width: 100%; height: 100%;" ></p>
+      <h4 id="tables">Tables</h4>
+      <p>Dimentions</p>
+      <ul>
+      <li>Calendar Lookup</li>
+      <li>Customer Lookup</li>
+      <li>Product Lookup</li>
+      <li>Product Categories Lookup</li>
+      <li>Product Subcategories Lookup</li>
+      <li>Territory Lookup</li>
+      </ul>
+      <p>Fact</p>
+      <ul>
+      <li>Sales Data</li>
+      <li>Returns Data</li>
+      </ul>
+      <p><img src="https://github.com/PatrickNAquino/AdventureWorks/assets/118391206/a7bcd7e2-acbd-4fb9-85c3-c0741b8a5633" alt="Data model image"></p>
+      <h2 id="measures-dax-">Measures (DAX)</h2>
+      <ul>
+      <li><p>Total Orders</p>
+      <pre><code>Total <span class="hljs-keyword">Orders </span>= 
+      <span class="hljs-keyword">DISTINCTCOUNT(
+      </span>    <span class="hljs-string">'Sales Data'</span>[<span class="hljs-keyword">OrderNumber]
+      </span>)
+      </code></pre></li>
+      <li><p>Total Revenue</p>
+      <pre><code><span class="hljs-symbol">Total</span> <span class="hljs-symbol">Revenue</span> = 
+        <span class="hljs-symbol">SUMX</span>(
+            <span class="hljs-string">'Sales Data'</span>,
+            <span class="hljs-string">'Sales Data'</span>[<span class="hljs-symbol">OrderQuantity</span>] *
+            <span class="hljs-symbol">RELATED</span>(
+                <span class="hljs-string">'Product Lookup'</span>[<span class="hljs-symbol">ProductPrice</span>]
+            )
+        )
+      </code></pre></li>
+      <li><p>Total Cost</p>
+      <pre><code><span class="hljs-symbol">Total</span> <span class="hljs-symbol">Cost</span> = 
+        <span class="hljs-symbol">SUMX</span>(
+            <span class="hljs-string">'Sales Data'</span>,
+            <span class="hljs-string">'Sales Data'</span>[<span class="hljs-symbol">OrderQuantity</span>] *
+            <span class="hljs-symbol">RELATED</span>(
+                <span class="hljs-string">'Product Lookup'</span>[<span class="hljs-symbol">ProductCost</span>]
+            )
+        )
+      </code></pre></li>
+      <li><p>Total Profit</p>
+      <pre><code><span class="hljs-keyword">Total</span> Profit = 
+        [<span class="hljs-keyword">Total</span> Revenue]-[<span class="hljs-keyword">Total</span> Cost]
+      </code></pre></li>
+      <li><p>Total Returns</p>
+      <pre><code><span class="hljs-attribute">Total Returns</span> = 
+        COUNT(
+            <span class="hljs-string">'Returns Data'</span>[ReturnQuantity]
+        )
+      </code></pre></li>
+      <li><p>Quantity Sold</p>
+      <pre><code><span class="hljs-attribute">Quantity Sold</span> = 
+        SUM(
+            <span class="hljs-string">'Sales Data'</span>[OrderQuantity]
+        )
+      </code></pre></li>
+      <li><p>Quantity Returned</p>
+      <pre><code><span class="hljs-attribute">Quantity Returned</span> = 
+        COUNT(
+            <span class="hljs-string">'Returns Data'</span>[ProductKey]
+        )
+      </code></pre></li>
+      <li><p>Return Rate</p>
+      <pre><code><span class="hljs-keyword">Return</span> Rate = 
+        DIVIDE(
+            [<span class="hljs-keyword">Quantity</span> Returned],
+            [<span class="hljs-keyword">Quantity</span> Sold],
+            <span class="hljs-string">"No Sales"</span>
+        )
+      </code></pre></li>
+      <li><p>Average Retail Price</p>
+      <pre><code><span class="hljs-built_in">Average</span> Retail <span class="hljs-built_in">Price</span> = 
+        <span class="hljs-built_in">AVERAGE</span>(
+            '<span class="hljs-built_in">Product</span> <span class="hljs-built_in">Lookup</span>'[ProductPrice]
+        )
+      </code></pre></li>
+      <li><p>Overall Average Price</p>
+      <pre><code>Overall <span class="hljs-built_in">Average</span> <span class="hljs-built_in">Price</span> = 
+        CALCULATE(
+            [<span class="hljs-built_in">Average</span> Retail <span class="hljs-built_in">Price</span>],
+            ALL(
+                '<span class="hljs-built_in">Product</span> <span class="hljs-built_in">Lookup</span>'
+            )
+        )
+      </code></pre></li>
+      <li><p>High Ticket Orders</p>
+      <pre><code>High Ticket Orders = 
+        CALCULATE(
+            [Total Orders],
+            FILTER(
+                '<span class="hljs-built_in">Product</span> <span class="hljs-built_in">Lookup</span>',
+                '<span class="hljs-built_in">Product</span> <span class="hljs-built_in">Lookup</span>'[ProductPrice] &gt; [Overall <span class="hljs-built_in">Average</span> <span class="hljs-built_in">Price</span>]
+            )
+        )
+      </code></pre></li>
+      <li><p>YTD Revenue</p>
+      <pre><code>YTD Revenue = 
+        CALCULATE(
+            [Total Revenue],
+            DATESYTD(
+                &#39;Calendar Lookup&#39;[Date]
+            )
+        )
+      </code></pre></li>
+      <li><p>Previews Month Orders</p>
+      <pre><code>Previews <span class="hljs-built_in">Month</span> Orders = 
+        CALCULATE(
+            [Total Orders],
+            DATEADD(
+                'Calendar <span class="hljs-built_in">Lookup</span>'[<span class="hljs-built_in">Date</span>],
+                -<span class="hljs-number">1</span>,
+                <span class="hljs-built_in">MONTH</span>
+            )
+        )
+      </code></pre></li>
+      <li><p>Previous Month Revenue</p>
+      <pre><code>Previous <span class="hljs-built_in">Month</span> Revenue = 
+        CALCULATE(
+            [Total Revenue],
+            DATEADD(
+                'Calendar <span class="hljs-built_in">Lookup</span>'[<span class="hljs-built_in">Date</span>],
+                -<span class="hljs-number">1</span>,
+                <span class="hljs-built_in">MONTH</span>
+            )
+        )
+      </code></pre></li>
+      <li><p>Previews Month Profit</p>
+      <pre><code>Previews <span class="hljs-built_in">Month</span> Profit = 
+        CALCULATE(
+            [Total Profit],
+            DATEADD(
+                'Calendar <span class="hljs-built_in">Lookup</span>'[<span class="hljs-built_in">Date</span>],
+                -<span class="hljs-number">1</span>,
+                <span class="hljs-built_in">MONTH</span>
+            )
+        )
+      </code></pre></li>
+      <li><p>Previews Month Returns</p>
+      <pre><code>Previews <span class="hljs-built_in">Month</span> Returns = 
+        CALCULATE(
+            [Total Returns],
+            DATEADD(
+                'Calendar <span class="hljs-built_in">Lookup</span>'[<span class="hljs-built_in">Date</span>],
+                -<span class="hljs-number">1</span>,
+                <span class="hljs-built_in">MONTH</span>
+            )
+        )
+      </code></pre></li>
+      <li><p>Total Customers</p>
+      <pre><code><span class="hljs-attribute">Total customers</span> = 
+        DISTINCTCOUNT(
+            <span class="hljs-string">'Sales Data'</span>[CustomerKey]
+        )
+      </code></pre></li>
+      <li><p>Full Name (Customer Detail)</p>
+      <pre><code>Full Name (<span class="hljs-name">Customer</span> Detail) = 
+        IF(
+            <span class="hljs-name">HASONEVALUE</span>(
+                'Customer Lookup'[CustomerKey]
+            ),
+            MAX(
+                'Customer Lookup'[FullName]
+            ),
+            <span class="hljs-string">"Multiple Customers"</span>
+        )
+      </code></pre></li>
+      <li><p>Total Revenue (customer Detail)</p>
+      <pre><code>Total Revenue (<span class="hljs-name">Customer</span> Detail) = 
+        IF(
+            <span class="hljs-name">HASONEVALUE</span>(
+                'Customer Lookup'[CustomerKey]
+            ),
+            [Total Revenue],
+            <span class="hljs-string">"-"</span>
+        )
+      </code></pre></li>
+      <li><p>Average Revenue per Customer</p>
+      <pre><code>Average Revenue per Customer = 
+        DIVIDE(
+            <span class="hljs-string">[Total Revenue]</span>,
+            <span class="hljs-string">[Total customers]</span>
+        )
+      </code></pre></li>
+      <li><p>Total Orders (Customer Detail)</p>
+      <pre><code>Total Orders (<span class="hljs-name">Customer</span> Detail) = 
+        IF(
+            <span class="hljs-name">HASONEVALUE</span>(
+                'Customer Lookup'[CustomerKey]
+            ),
+            [Total Orders],
+            <span class="hljs-string">"-"</span>
+        )
+      </code></pre></li>
+      </ul>
+      <h2>Power BI Dashboard</h2>
+      <embed src="https://app.powerbi.com/view?r=eyJrIjoiNGI4Mjc4OWUtNDA2My00NmI0LTg0YjYtMmE0ZmFiZjRkOTU1IiwidCI6Ijc5NzgyMzFkLTA4ZjAtNDVhNy05ZDEzLTc3YzNmYTk2OGI4OCJ9" style="aspect-ratio: 16/9; width: 100%; height: 100%;"/>
+      <h2 id="analysis">Analysis</h2>
+      <h4 id="revenue">Revenue</h4>
+      <ul>
+      <li>With a total of $ 24.9M the company revenue is increasing over time, with the best result in jun/2022 ($ 1.83M) even with a small drop in sales of -0.88% compared with the previous month;</li>
+      <li>&#39;Bikes&#39; categorie represents the highest slice of the company revenue with $ 23.6M and best-seller product &#39;Mountain-200 Black&#39;;</li>
+      <li>USA leads the market with $ 7.9M representing 32% of total revenue.</li>
+      </ul>
+      <p><img src="https://github.com/PatrickNAquino/AdventureWorks/assets/118391206/701b63c9-a661-458a-ada5-f63f9ef7bd3c" alt="image"></p>
+      <h4 id="orders">Orders</h4>
+      <ul>
+      <li>The United States is the country with the highest number of sales, representing 34.5% of company market share;</li>
+      <li>The category &#39;Accessories&#39; has 17K products selled representing 44.82% of sales. In this category the best seller product is &#39;Water Bottle - 30 oz&#39; with 3983 orders;</li>
+      </ul>
+      <p><img src="https://github.com/PatrickNAquino/AdventureWorks/assets/118391206/19d3d48f-ac6e-4aa1-ae6a-eda8ab3ba66c" alt="image"></p>
+      <h4 id="returns">Returns</h4>
+      <ul>
+      <li>Started trending up since jul-2021, resuting in a 2075% increase.</li>
+      <li>Accessories had the highest returns accounted for 61.64%, being &#39;Watter Bottle - 30oz&#39; the product most returned (149 returns - 1.9% return rate)</li>
+      <li>USA also leads product returns with a return rate of 2.1% (624 items)</li>
+      </ul>
+      <p><img src="https://github.com/PatrickNAquino/AdventureWorks/assets/118391206/73296b8c-82b7-46ea-8bda-7179081fff74" alt="image"></p>
+      <h4 id="clients">Clients</h4>
+      <ul>
+      <li>The number of customers remains almost constant since jan-2020 and started to grow in jul-2021.</li>
+      <li>The company has 17K customers and an average revenue per customer of $ 1.43K.</li>
+      <li>The majority of customers risides in USA with 41.54% (7.2K clients) while Canada has the lowest number 1499;</li>
+      <li>Revenue per Customer trended down, resulting in a 72.48% decrease between January-2020 and June-2022.</li>
+      <li>Mr. Maurice Shan is the top customer by revenue contributing with $ 12.4K;</li>
+      </ul>
+      <p><img src="https://github.com/PatrickNAquino/AdventureWorks/assets/118391206/26e3c3f2-f1c2-4e7a-8d1b-4ac4deebe0be" alt="image"></p>
+
 
     </div>
       
